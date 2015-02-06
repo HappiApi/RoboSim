@@ -63,7 +63,7 @@ void addDeltasToCumulative()
 
 void changePrevAngle()
 	{
-		prevAngle = angleTurned ;	//adjusted
+		prevAngle += angleTurned ;	//adjusted
 	}
 
 void calcPosition(int leftEnc, int rightEnc) 
@@ -79,6 +79,8 @@ void calcPosition(int leftEnc, int rightEnc)
 		calcDeltas();
 		addDeltasToCumulative();
 		changePrevAngle();
+		set_origin();
+		set_point((int)(coords.x / encToMillimetres), (int)(coords.y / encToMillimetres));
 	}
 	printf("X : %f Y : %f Angle : %f\n", coords.x, coords.y, angleTurned * 180 / 3.141592);
 						
