@@ -45,6 +45,10 @@ void lookForFront()
 		{
 			set_motors(fastSpeed,-fastSpeed);
 			printf(" FRONT FR%d\n",get_front_ir_dist(RIGHT) );
+
+			get_motor_encoders(&leftEnc,&rightEnc);
+			calcPosition(leftEnc,rightEnc);
+			reset_motor_encoders();
 		}
 	}
 }
@@ -57,6 +61,10 @@ void lookForEnd()
 		{
 			set_motors(slowSpeed,superSpeed);
 			printf("UTURN SL%d FL%d\n", get_side_ir_dist(followSide), get_front_ir_dist(followSide) );
+
+			get_motor_encoders(&leftEnc,&rightEnc);
+			calcPosition(leftEnc,rightEnc);
+			reset_motor_encoders();
 		}
 	}
 }
@@ -101,6 +109,10 @@ void adjustSide()
 			{
 				set_motors(fastSpeed,slowSpeed);
 				printf(" SIDE OUT %d %d\n", get_side_ir_dist(LEFT), get_front_ir_dist(LEFT));
+
+				get_motor_encoders(&leftEnc,&rightEnc);
+				calcPosition(leftEnc,rightEnc);
+				reset_motor_encoders();
 			}
 		}
 
@@ -110,6 +122,10 @@ void adjustSide()
 			{
 				set_motors(slowSpeed,fastSpeed);
 				printf(" SIDE IN %d %d\n", get_side_ir_dist(LEFT), get_front_ir_dist(LEFT));
+
+				get_motor_encoders(&leftEnc,&rightEnc);
+				calcPosition(leftEnc,rightEnc);
+				reset_motor_encoders();
 			}
 		}
 	}

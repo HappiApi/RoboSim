@@ -63,7 +63,7 @@ void addDeltasToCumulative()
 
 void changePrevAngle()
 	{
-		prevAngle += angleTurned ;	//adjusted
+		prevAngle = angleTurned ;	//adjusted not += 
 	}
 
 void calcPosition(int leftEnc, int rightEnc) 
