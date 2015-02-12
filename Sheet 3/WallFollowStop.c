@@ -26,12 +26,12 @@ void setSensors()
 void checkWallAhead() {
   int usDist = get_us_dist();
 
-  if (usDist < 25 && get_front_ir_dist(RIGHT) > 25) {
-    while (usDist > 10) {
+  if (usDist < 30 && get_front_ir_dist(RIGHT) > 25) {
+    while (usDist > 20) {
       set_motors(10,10);
       usDist = get_us_dist();
     }
-
+    printf("STOPPED");
     while(1){
       set_motors(0,0);
 	}
@@ -62,6 +62,8 @@ void lookForFront()
 			set_motors(fastSpeed,-fastSpeed);
 			printf(" FRONT FR%d\n",get_front_ir_dist(RIGHT) );
 
+			checkWallAhead();
+
 			get_motor_encoders(&leftEnc,&rightEnc);
 			calcPosition(leftEnc,rightEnc);
 			reset_motor_encoders();
@@ -77,6 +79,8 @@ void lookForEnd()
 		{
 			set_motors(slowSpeed,superSpeed);
 			printf("UTURN SL%d FL%d\n", get_side_ir_dist(followSide), get_front_ir_dist(followSide) );
+
+			checkWallAhead();
 
 			get_motor_encoders(&leftEnc,&rightEnc);
 			calcPosition(leftEnc,rightEnc);
@@ -126,6 +130,8 @@ void adjustSide()
 				set_motors(fastSpeed,slowSpeed);
 				printf(" SIDE OUT %d %d\n", get_side_ir_dist(LEFT), get_front_ir_dist(LEFT));
 
+				checkWallAhead();
+
 				get_motor_encoders(&leftEnc,&rightEnc);
 				calcPosition(leftEnc,rightEnc);
 				reset_motor_encoders();
@@ -138,6 +144,8 @@ void adjustSide()
 			{
 				set_motors(slowSpeed,fastSpeed);
 				printf(" SIDE IN %d %d\n", get_side_ir_dist(LEFT), get_front_ir_dist(LEFT));
+
+				checkWallAhead();
 
 				get_motor_encoders(&leftEnc,&rightEnc);
 				calcPosition(leftEnc,rightEnc);
