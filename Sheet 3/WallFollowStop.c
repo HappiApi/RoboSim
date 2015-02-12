@@ -22,6 +22,22 @@ void setSensors()
 	set_ir_angle(RIGHT,-75);
 }
 
+
+void checkWallAhead() {
+  int usDist = get_us_dist();
+
+  if (usDist < 25 && get_front_ir_dist(RIGHT) > 25) {
+    while (usDist > 10) {
+      set_motors(10,10);
+      usDist = get_us_dist();
+    }
+
+    while(1){
+      set_motors(0,0);
+	}
+  }
+}
+
 void adjustParallel()
 {
 	if (get_side_ir_dist(followSide) > get_front_ir_dist(followSide)-frontIROffset)		
@@ -144,6 +160,7 @@ int main()
 		lookForEnd();
 		straight();
 		adjustSide();
+		checkWallAhead();
 		get_motor_encoders(&leftEnc,&rightEnc);
 		calcPosition(leftEnc,rightEnc);
 		reset_motor_encoders();
