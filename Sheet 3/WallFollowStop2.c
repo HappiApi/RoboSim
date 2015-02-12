@@ -37,6 +37,14 @@ void adjustParallel()
 	}	
 }
 
+void stopFront()
+{
+	if(get_us_dist() < 20)
+	{
+		set_motors(0,0);
+	}
+}
+
 void lookForFront()
 {
 	if(get_front_ir_dist(RIGHT) < distanceToFront)
@@ -46,11 +54,7 @@ void lookForFront()
 			set_motors(fastSpeed,-fastSpeed);
 			
 			printf(" FRONT FR%d\n",get_front_ir_dist(RIGHT) );
-			if(get_us_dist() < 20)
-			{
-			set_motors(0,0);
-			}
-			
+
 			get_motor_encoders(&leftEnc,&rightEnc);
 			calcPosition(leftEnc,rightEnc);
 			reset_motor_encoders();
@@ -149,6 +153,7 @@ int main()
 		lookForEnd();
 		straight();
 		adjustSide();
+		stopFront();
 		get_motor_encoders(&leftEnc,&rightEnc);
 		calcPosition(leftEnc,rightEnc);
 		reset_motor_encoders();
