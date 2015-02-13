@@ -5,7 +5,7 @@
 #include "calcPos.h"
 
 #define distanceToWall 25
-#define distanceToFront 25
+#define distanceToFront 30
 #define endOfWallMultiplier 2
 #define slowSpeed 30 //15
 #define fastSpeed 50 //30
