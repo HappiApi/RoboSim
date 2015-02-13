@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include "picomms.h"
 
 #define encToMillimetres 1000/956	
 #define widthOfRobot 236		// In mm
@@ -79,7 +80,7 @@ void calcPosition(int leftEnc, int rightEnc)
 		calcDeltas();
 		addDeltasToCumulative();
 		changePrevAngle();
-		set_origin();
+		//set_origin();
 		set_point((int)(coords.x / encToMillimetres), (int)(coords.y / encToMillimetres));
 	}
 	printf("X : %f Y : %f Angle : %f\n", coords.x, coords.y, angleTurned * 180 / 3.141592);

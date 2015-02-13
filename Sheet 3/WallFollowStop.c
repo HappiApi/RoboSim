@@ -1,11 +1,12 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <time.h>
 #include "picomms.h"
 #include "calcPos.h"
 
-#define distanceToWall 25
-#define distanceToFront 30
+#define distanceToWall 20
+#define distanceToFront 25
 #define endOfWallMultiplier 2
 #define slowSpeed 30 //15
 #define fastSpeed 50 //30
@@ -22,22 +23,21 @@ void setSensors()
 	set_ir_angle(RIGHT,-75);
 }
 
-void calcP()
-{
-	get_motor_encoders(&leftEnc,&rightEnc);
-	calcPosition(leftEnc,rightEnc);
-	reset_motor_encoders();
-}
+// int angleToWall() {
+// 	int frontR = get_front_ir_dist(RIGHT);
+// 	int frontL = get_front_ir_dist(LEFT);
+	
+// }
 
 void checkWallAhead() {
   int usDist = get_us_dist();
 
-  if (usDist < 20 && get_front_ir_dist(RIGHT) < 20) {
+  if (usDist < 30 && get_front_ir_dist(RIGHT) > 35) {
     while (usDist > 15) {
       set_motors(10,10);
       usDist = get_us_dist();
     }
-    printf("STOPPED, terminate program.");
+    printf("STOPPED");
     while(1){
       set_motors(0,0);
 	}
@@ -69,7 +69,10 @@ void lookForFront()
 			printf(" FRONT FR%d\n",get_front_ir_dist(RIGHT) );
 
 			checkWallAhead();
-			calcP();
+
+			get_motor_encoders(&leftEnc,&rightEnc);
+			calcPosition(leftEnc,rightEnc);
+			reset_motor_encoders();
 		}
 	}
 }
@@ -85,7 +88,9 @@ void lookForEnd()
 
 			checkWallAhead();
 
-			calcP();
+			get_motor_encoders(&leftEnc,&rightEnc);
+			calcPosition(leftEnc,rightEnc);
+			reset_motor_encoders();
 		}
 	}
 }
@@ -133,7 +138,9 @@ void adjustSide()
 
 				checkWallAhead();
 
-				calcP();
+				get_motor_encoders(&leftEnc,&rightEnc);
+				calcPosition(leftEnc,rightEnc);
+				reset_motor_encoders();
 			}
 		}
 
@@ -146,19 +153,20 @@ void adjustSide()
 
 				checkWallAhead();
 
-				calcP();
+				get_motor_encoders(&leftEnc,&rightEnc);
+				calcPosition(leftEnc,rightEnc);
+				reset_motor_encoders();
 			}
 		}
 	}
 }
-
-
 
 int main()
 {
 	connect_to_robot();
 	initialize_robot();
 	setSensors();
+	set_origin();
 
 	while(1)
 	{
@@ -168,7 +176,8 @@ int main()
 		straight();
 		adjustSide();
 		checkWallAhead();
-		calcP();
-
+		get_motor_encoders(&leftEnc,&rightEnc);
+		calcPosition(leftEnc,rightEnc);
+		reset_motor_encoders();
 	}
 }
