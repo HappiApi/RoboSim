@@ -4,7 +4,7 @@
 #include "picomms.h"
 #include "calcPos.h"
 
-#define distanceToWall 20
+#define distanceToWall 25
 #define distanceToFront 25
 #define endOfWallMultiplier 2
 #define slowSpeed 30 //15
@@ -22,16 +22,22 @@ void setSensors()
 	set_ir_angle(RIGHT,-75);
 }
 
+void calcP()
+{
+	get_motor_encoders(&leftEnc,&rightEnc);
+	calcPosition(leftEnc,rightEnc);
+	reset_motor_encoders();
+}
 
 void checkWallAhead() {
   int usDist = get_us_dist();
 
-  if (usDist < 30 && get_front_ir_dist(RIGHT) > 25) {
-    while (usDist > 20) {
+  if (usDist < 20 && get_front_ir_dist(RIGHT) < 20) {
+    while (usDist > 15) {
       set_motors(10,10);
       usDist = get_us_dist();
     }
-    printf("STOPPED");
+    printf("STOPPED, terminate program.");
     while(1){
       set_motors(0,0);
 	}
@@ -63,10 +69,7 @@ void lookForFront()
 			printf(" FRONT FR%d\n",get_front_ir_dist(RIGHT) );
 
 			checkWallAhead();
-
-			get_motor_encoders(&leftEnc,&rightEnc);
-			calcPosition(leftEnc,rightEnc);
-			reset_motor_encoders();
+			calcP();
 		}
 	}
 }
@@ -82,9 +85,7 @@ void lookForEnd()
 
 			checkWallAhead();
 
-			get_motor_encoders(&leftEnc,&rightEnc);
-			calcPosition(leftEnc,rightEnc);
-			reset_motor_encoders();
+			calcP();
 		}
 	}
 }
@@ -132,9 +133,7 @@ void adjustSide()
 
 				checkWallAhead();
 
-				get_motor_encoders(&leftEnc,&rightEnc);
-				calcPosition(leftEnc,rightEnc);
-				reset_motor_encoders();
+				calcP();
 			}
 		}
 
@@ -147,13 +146,13 @@ void adjustSide()
 
 				checkWallAhead();
 
-				get_motor_encoders(&leftEnc,&rightEnc);
-				calcPosition(leftEnc,rightEnc);
-				reset_motor_encoders();
+				calcP();
 			}
 		}
 	}
 }
+
+
 
 int main()
 {
@@ -169,8 +168,7 @@ int main()
 		straight();
 		adjustSide();
 		checkWallAhead();
-		get_motor_encoders(&leftEnc,&rightEnc);
-		calcPosition(leftEnc,rightEnc);
-		reset_motor_encoders();
+		calcP();
+
 	}
 }
