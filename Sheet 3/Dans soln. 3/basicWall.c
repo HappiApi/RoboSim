@@ -15,6 +15,16 @@
 
 int leftEnc; int rightEnc;
 
+void comeToStop() {
+  while (get_front_ir_dist(RIGHT) > 15) {
+    set_motors(15,15);
+  }
+  set_motors(0,0);
+  get_motor_encoders(&leftEnc,&rightEnc);
+  calcPosition(leftEnc,rightEnc);
+  exit(0);
+}
+
 int main() {
 	connect_to_robot();
 	initialize_robot();
@@ -25,7 +35,7 @@ int main() {
   float distToWall = thresholdDist * sin (3.1415 * 0.25);
   int wallDist = get_front_ir_dist(LEFT);
   float turnRate = 0;
-  float multiplierL = 1.1 * (MIN_TURN_RADIUS * distToWall) / 43.5; //16.2; 
+  float multiplierL = 1.1 * (MIN_TURN_RADIUS * distToWall) / 43.5;
   float multiplierR = 30;
 
 
@@ -45,7 +55,6 @@ int main() {
       } else {
   	   	turnRate = 1.5 * (wallDist / thresholdDist - 1.0);
   		}
-    //  printf("turn rate : %f, distToWall / thresholdDist : %f, distToWall %f\n", turnRate, wallDist / thresholdDist, distToWall);
       set_motors((int)(followSpeed - multiplierL * turnRate), followSpeed);
   	}
 
@@ -59,14 +68,4 @@ int main() {
   }
 
   return 1;
-}
-
-void comeToStop() {
-  while (get_front_ir_dist(RIGHT) > 15) {
-    set_motors(15,15);
-  }
-  set_motors(0,0);
-  get_motor_encoders(&leftEnc,&rightEnc);
-  calcPosition(leftEnc,rightEnc);
-  exit(0);
 }
