@@ -83,6 +83,6 @@ void calcPosition(int leftEnc, int rightEnc)
 		set_point((int)(coords.x / 10), (int)(coords.y / 10)); //set point in centimetres
 	}
 	printf("X : %f Y : %f Angle : %f\n", coords.x, coords.y, prevAngle * 180 / 3.141592);
-	printf("Dist Travelled: %imm, angle travelled at: %fdegrees\n", (int)sqrt((coords.x * coords.x) + (coords.y * coords.y)), atan(coords.x / coords.y) * 180 / 3.141592); 
+	printf("Dist Travelled: %imm, angle travelled at: %f degrees\n", (int)sqrt((coords.x * coords.x) + (coords.y * coords.y)), atan(coords.x / coords.y) * 180 / 3.141592); 
 }
 
