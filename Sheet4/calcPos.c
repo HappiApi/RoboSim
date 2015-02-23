@@ -2,35 +2,28 @@
 #include <math.h>
 #include "picomms.h"
 
-#define encToMillimetres 1000/1145
-#define widthOfRobot 235		// In mm
+#define encToCentimetres 1000/1145
+#define widthOfRobot 225		// In mm
 
 double angleTurned;		// current turning angle
 double prevAngle = 0;		// initial condition previous angle = 0
 double deltaX, deltaY;
 double Rl, Rr, Rm;
-double leftEncInMillimetres, rightEncInMillimetres;
 double p, q, a, b ; 	// Should probably find better name
 double xCoord, yCoord;
 
-void convertEncToMM(int leftEnc, int rightEnc)
+void calcParameters(int leftEnc, int rightEnc)
 	{
-		leftEncInMillimetres = (double)leftEnc * encToMillimetres ;
-		rightEncInMillimetres = (double)rightEnc * encToMillimetres ;
-	}
-
-void calcParameters()
-	{
-		angleTurned = ( leftEncInMillimetres - rightEncInMillimetres ) / widthOfRobot ;
-		Rl = leftEncInMillimetres / angleTurned ;
-		Rr = rightEncInMillimetres / angleTurned ;
+		angleTurned = (double)( leftEnc - rightEnc ) / widthOfRobot ;
+		Rl = (double)leftEnc / angleTurned ;
+		Rr = (double)rightEnc / angleTurned ;
 		Rm = ( Rl + Rr ) / 2 ;
 	}
 
-void calcStraightDist()	// case where angleTurned == 0
+void calcStraightDist(int leftEnc, int rightEnc)	// case where angleTurned == 0
 {
-	xCoord += rightEncInMillimetres * sin(prevAngle) ;	
-	yCoord += rightEncInMillimetres * cos(prevAngle) ;
+	xCoord += (double)leftEnc * encToCentimetres * sin(prevAngle) ;	
+	yCoord += (double)rightEnc * encToCentimetres * cos(prevAngle) ;
 }
 
 //When robot !at 0 rad (given previous angle phi)  // <-- General case ?
@@ -49,8 +42,8 @@ void calcDeltas()
 
 void addDeltasToCumulative()
 	{
-		xCoord += deltaX ;
-		yCoord += deltaY ;
+		xCoord += deltaX * encToCentimetres ;
+		yCoord += deltaY * encToCentimetres ;
 	}
 
 //Adjust current angle to previous angle
@@ -62,19 +55,20 @@ void changePrevAngle()
 
 void calcPosition(int leftEnc, int rightEnc, double* xCurrent, double* yCurrent) 
 {
-	convertEncToMM(leftEnc, rightEnc);
-	if (fabs(leftEncInMillimetres - rightEncInMillimetres) < 1.0)
+	// convertEncToMM(leftEnc, rightEnc);
+	if (fabs(leftEnc - rightEnc) < 1.0)
 	{
-		calcStraightDist();
+		calcStraightDist(leftEnc, rightEnc);
 	}
 	else
 	{
-		calcParameters();
+		calcParameters(leftEnc, rightEnc);
 		calcDeltas();
 		addDeltasToCumulative();
 		changePrevAngle();
-		set_point((int)(*xCurrent / 10), (int)(*yCurrent / 10)); //set point in centimetres
 	}
+	log_trail();
+	set_point((int)(*xCurrent / 10), (int)(*yCurrent / 10)); //set point in centimetres
 	printf("X : %f Y : %f Angle : %f\n", *xCurrent, *yCurrent, prevAngle * 180 / 3.141592);
 	printf("Dist Travelled: %imm, angle travelled at: %f degrees\n", (int)sqrt((*xCurrent * *xCurrent) + (*yCurrent * *yCurrent)), atan(*xCurrent / *yCurrent) * 180 / 3.141592); 
   *xCurrent = xCoord;
