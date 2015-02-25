@@ -28,7 +28,7 @@ typedef struct coordinates coords;
 
 coords* head = NULL; coords* currentNode; int nodePosition = 0;
 
-int i = 0; double xCurrent = 0, yCurrent = 0;
+double xCurrent = 0, yCurrent = 0;
 double prevAngle = 0;   // initial condition previous angle = 0
 
 /*finds the angle between the heading direction and a point*/
@@ -94,7 +94,7 @@ coords * findTarget () {
 void calcPositionMaths(int leftEnc, int rightEnc) {
   double angleTurned;   // current turning angle
   double deltaX, deltaY;
-  double Rl, Rr, Rm;
+  double Rm;
 
   if (fabs(leftEnc - rightEnc) < 1) {
     xCurrent += (double)leftEnc * ENC_TO_CM * sin(prevAngle) ; 
@@ -122,20 +122,13 @@ void calcPositionMaths(int leftEnc, int rightEnc) {
 
 /*apply data smoothing to the encoder readings within this function*/
 void calcPosition() {
-  static int lEnc[3], rEnc[3], lEncFinal, rEncFinal; static int leftEncPrev = 0; static int rightEncPrev = 0;
-  if (i % 3 == 0) {
-    get_motor_encoders(&lEnc[0], &rEnc[0]);
-  } else if (i % 3 == 1) {
-    get_motor_encoders(&lEnc[1], &rEnc[1]);
-  } else {
-    get_motor_encoders(&lEnc[2], &rEnc[2]);
-  }
+  static int i = 0, lEnc[3], rEnc[3], lEncFinal, rEncFinal, leftEncPrev = 0, rightEncPrev = 0;
+  get_motor_encoders(&lEnc[i%3], &rEnc[i%3]);
   if (i > 1) {
-    lEncFinal = round((float)(lEnc[0] + lEnc[1] + lEnc[2]) / 3.0);
-    rEncFinal = round((float)(rEnc[0] + rEnc[1] + rEnc[2]) / 3.0);
+    lEncFinal = round((lEnc[0] + lEnc[1] + lEnc[2]) / 3.0);
+    rEncFinal = round((rEnc[0] + rEnc[1] + rEnc[2]) / 3.0);
     calcPositionMaths(lEncFinal - leftEncPrev, rEncFinal - rightEncPrev);
-    leftEncPrev = lEncFinal;
-    rightEncPrev = rEncFinal;
+    leftEncPrev = lEncFinal; rightEncPrev = rEncFinal;
   } 
   i++;
 }
@@ -146,9 +139,8 @@ void followBack() {
   double angleToTarget;
   double ratio = 0.03;
   while(1) {
-
     target = findTarget();
-    if (currentNode-> position == 1) {
+    if (currentNode->position == 2) {
       set_motors(0,0);
       exit(0);
     }
@@ -191,6 +183,7 @@ void turn(float targetAngle, int direction) {
     }
   }
   set_motors(0,0);
+  calcPosition();
   usleep(40000);
 }
 
@@ -212,10 +205,7 @@ void comeToStop() {
   set_motors(0,0);
   calcPosition();
   addNode();
-
-  currentNode = head;
   turn(180, LEFT);
-  calcPosition();
   followBack();
 }
 
@@ -229,7 +219,6 @@ int main() {
   float turnRate = 0;
   float multiplierL = 0.5 * FOLLOW_SPEED;
   float multiplierR = FOLLOW_SPEED;
-
 
   while (1) {
   	wallDist = get_front_ir_dist(LEFT);
