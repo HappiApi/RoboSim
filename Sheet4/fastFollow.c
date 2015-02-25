@@ -32,31 +32,6 @@ coords* head = NULL; coords* currentNode;
 
 int leftEnc; int rightEnc; double xCurrent; double yCurrent;
 
-void followBack() {
-  float angleToNext;
-  float xDist; float yDist;
-  float distToNext;
-
-  xDist = currentNode->x - currentNode->next->x;
-  yDist = currentNode->y - currentNode->next->y;
-
-  angleToNext = atan(xDist/yDist);
-  printf("currentNode->x: %f, currentNode->next->x: %f, angle to next: %f\n",currentNode->x, currentNode->next->x, angleToNext * 180 / 3.141592);
-  if (angleToNext>0) {
-    turn(angleToNext, LEFT);
-  } else {
-    turn(-angleToNext, RIGHT);
-  }
-
-  distToNext = sqrt(xDist * xDist + yDist * yDist);
-
-  get_motor_encoders(&leftEnc, &rightEnc);
-  while (leftEnc < distToNext) {
-    set_motors(15,15);
-    get_motor_encoders(&leftEnc, &rightEnc);
-  }
-}
-
 void turn(float targetAngle, int direction) 
 {
   int slowSpd = fastestNonSlipMotorValue;
@@ -89,6 +64,32 @@ void turn(float targetAngle, int direction)
   set_motors(0,0);
   usleep(40000);
 }
+
+void followBack() {
+  float angleToNext;
+  float xDist; float yDist;
+  float distToNext;
+
+  xDist = currentNode->x - currentNode->next->x;
+  yDist = currentNode->y - currentNode->next->y;
+
+  angleToNext = atan(xDist/yDist);
+  printf("currentNode->x: %f, currentNode->next->x: %f, angle to next: %f\n",currentNode->x, currentNode->next->x, angleToNext * 180 / 3.141592);
+  if (angleToNext>0) {
+    turn(angleToNext, LEFT);
+  } else {
+    turn(-angleToNext, RIGHT);
+  }
+
+  distToNext = sqrt(xDist * xDist + yDist * yDist);
+
+  get_motor_encoders(&leftEnc, &rightEnc);
+  while (leftEnc < distToNext) {
+    set_motors(15,15);
+    get_motor_encoders(&leftEnc, &rightEnc);
+  }
+}
+
 
 void comeToStop(coords * head, coords * currentNode) {
   while (get_front_ir_dist(RIGHT) > 15) {
@@ -150,7 +151,7 @@ int main() {
 
     // printf("loop no: %i", i);
 
-    if (i % 4 == 0) {
+    if (i % 2 == 0) {
       get_motor_encoders(&leftEnc,&rightEnc);
       calcPosition(leftEnc,rightEnc, &xCurrent, &yCurrent);
       currentNode = (coords *)malloc(sizeof(coords)); //creates new node

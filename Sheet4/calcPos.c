@@ -68,10 +68,11 @@ void calcPosition(int leftEnc, int rightEnc, double* xCurrent, double* yCurrent)
 		changePrevAngle();
 	}
 	log_trail();
+	*xCurrent = xCoord;
+    *yCurrent = yCoord;
 	set_point((int)(*xCurrent / 10), (int)(*yCurrent / 10)); //set point in centimetres
 	printf("X : %f Y : %f Angle : %f\n", *xCurrent, *yCurrent, prevAngle * 180 / 3.141592);
 	printf("Dist Travelled: %imm, angle travelled at: %f degrees\n", (int)sqrt((*xCurrent * *xCurrent) + (*yCurrent * *yCurrent)), atan(*xCurrent / *yCurrent) * 180 / 3.141592); 
-  *xCurrent = xCoord;
-  *yCurrent = yCoord;
+
 }
 

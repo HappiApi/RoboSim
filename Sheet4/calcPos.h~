@@ -1,1 +1,0 @@
-void calcPosition(int leftEnc, int rightEnc, int* xCurrent, int* yCurrent);
