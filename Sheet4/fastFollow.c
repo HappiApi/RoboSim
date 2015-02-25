@@ -4,7 +4,7 @@
 #include <math.h>
 #include <time.h>
 #include "picomms.h"
-#include "calcPos.h"
+#include "calcPos2.h"
 
 #define followSpeed 35 //15
 #define frontIROffset 4
@@ -97,7 +97,8 @@ void comeToStop(coords * head, coords * currentNode) {
   }
   set_motors(0,0);
   get_motor_encoders(&leftEnc,&rightEnc);
-  calcPosition(leftEnc,rightEnc, &xCurrent, &yCurrent);
+  //calcPosition(leftEnc,rightEnc, &xCurrent, &yCurrent);
+  calcPosition(leftEnc,rightEnc);
   currentNode = (coords *)malloc(sizeof(coords)); //creates new node
   currentNode->x = xCurrent; //assigns value of x and y coords for new node
   currentNode->y = yCurrent;
@@ -151,17 +152,18 @@ int main() {
 
     // printf("loop no: %i", i);
 
-    if (i % 2 == 0) {
+    //if (i % 2 == 0) {
       get_motor_encoders(&leftEnc,&rightEnc);
-      calcPosition(leftEnc,rightEnc, &xCurrent, &yCurrent);
-      currentNode = (coords *)malloc(sizeof(coords)); //creates new node
-      currentNode->x = xCurrent; //assigns value of x and y coords for new node
-      currentNode->y = yCurrent;
-      currentNode->next = head;  //makes the new node point to the previous one
-      head = currentNode; //changes the head of the list to be the new node
+      calcPosition(leftEnc,rightEnc); 
+      //calcPosition(leftEnc,rightEnc, &xCurrent, &yCurrent);
+      //currentNode = (coords *)malloc(sizeof(coords)); //creates new node
+      //currentNode->x = xCurrent; //assigns value of x and y coords for new node
+      //currentNode->y = yCurrent;
+      //currentNode->next = head;  //makes the new node point to the previous one
+      //head = currentNode; //changes the head of the list to be the new node
       reset_motor_encoders();
-    }
-    i++;
+   // }
+   //i++;
   }
 
   return 1;
