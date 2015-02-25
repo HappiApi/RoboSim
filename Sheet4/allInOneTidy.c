@@ -28,9 +28,8 @@ typedef struct coordinates coords;
 
 coords* head = NULL; coords* currentNode; int nodePosition = 0;
 
-int i = 0; double xCurrent, yCurrent;
+int i = 0; double xCurrent = 0, yCurrent = 0;
 double prevAngle = 0;   // initial condition previous angle = 0
-double xCoord = 0; double yCoord = 0;
 
 /*finds the angle between the heading direction and a point*/
 double angleToTargetPoint(coords * target) {
@@ -54,7 +53,7 @@ double angleToTargetPoint(coords * target) {
     }
   } 
   angleFromCurrent = angleFromY - prevAngle;
-  
+
   return angleFromCurrent * 180 / M_PI;
 }
 
@@ -98,20 +97,16 @@ void calcPositionMaths(int leftEnc, int rightEnc) {
   double Rl, Rr, Rm;
 
   if (fabs(leftEnc - rightEnc) < 1) {
-    xCoord += (double)leftEnc * ENC_TO_CM * sin(prevAngle) ; 
-    yCoord += (double)rightEnc * ENC_TO_CM * cos(prevAngle) ;
+    xCurrent += (double)leftEnc * ENC_TO_CM * sin(prevAngle) ; 
+    yCurrent += (double)rightEnc * ENC_TO_CM * cos(prevAngle) ;
   } else {
     angleTurned = (double)( leftEnc - rightEnc ) * ENC_TO_CM / ROBOT_WIDTH ;
-    Rl = (double)leftEnc / angleTurned ;
-    Rr = (double)rightEnc / angleTurned ;
-    Rm = ( Rl + Rr ) / 2.0 ;
-    
+    Rm = ( leftEnc / angleTurned + rightEnc / angleTurned ) / 2.0 ;
     deltaY = Rm * (sin(prevAngle + angleTurned) - sin(prevAngle)) ;
-
     deltaX = Rm * (cos(prevAngle) - cos(prevAngle + angleTurned)) ;
 
-    xCoord += deltaX * ENC_TO_CM ;
-    yCoord += deltaY * ENC_TO_CM ;
+    xCurrent += deltaX * ENC_TO_CM ;
+    yCurrent += deltaY * ENC_TO_CM ;
     if (prevAngle + angleTurned < 0) {
       prevAngle = 2 * M_PI + prevAngle + angleTurned;
     } else if (prevAngle + angleTurned > 2 * M_PI) {
@@ -120,8 +115,6 @@ void calcPositionMaths(int leftEnc, int rightEnc) {
       prevAngle += angleTurned ;  //adjusted to += 
     }
   }
-  xCurrent = xCoord;
-  yCurrent = yCoord;
   set_point(round(xCurrent), round(yCurrent)); //set point in centimetres
   printf("X : %f Y : %f Angle : %f\n", xCurrent, yCurrent, prevAngle * 180 / 3.141592);
   printf("Dist Travelled: %icm, angle travelled at: %f degrees\n", (int)sqrt((xCurrent * xCurrent) + (yCurrent * yCurrent)), prevAngle); 
@@ -201,6 +194,16 @@ void turn(float targetAngle, int direction) {
   usleep(40000);
 }
 
+void addNode() {
+  currentNode = (coords *)malloc(sizeof(coords)); //creates new node
+  currentNode->x = xCurrent; //assigns value of x and y coords for new node
+  currentNode->y = yCurrent;
+  currentNode->position = nodePosition;
+  currentNode->next = head;  //makes the new node point to the previous one
+  head = currentNode; //changes the head of the list to be the new node
+  nodePosition++;
+}
+
 void comeToStop() {
   while (get_front_ir_dist(RIGHT) > 15) {
     set_motors(15,15);
@@ -208,13 +211,7 @@ void comeToStop() {
   }
   set_motors(0,0);
   calcPosition();
-  currentNode = (coords *)malloc(sizeof(coords)); //creates new node
-  currentNode->x = xCurrent; //assigns value of x and y coords for new node
-  currentNode->y = yCurrent;
-  currentNode->position = nodePosition;
-  currentNode->next = head;
-  head = currentNode; //changes the head of the list to be the new node
-  nodePosition++;
+  addNode();
 
   currentNode = head;
   turn(180, LEFT);
@@ -252,15 +249,7 @@ int main() {
   		}
       set_motors((int)(FOLLOW_SPEED - multiplierL * turnRate), FOLLOW_SPEED);
   	}
-      calcPosition();
-      currentNode = (coords *)malloc(sizeof(coords)); //creates new node
-      currentNode->x = xCurrent; //assigns value of x and y coords for new node
-      currentNode->y = yCurrent;
-      currentNode->position = nodePosition;
-      currentNode->next = head;  //makes the new node point to the previous one
-      head = currentNode; //changes the head of the list to be the new node
-      nodePosition++;
+    addNode();
+    calcPosition();
   }
 }
-
-/*implement a data smoothing for the read motor encoder values*/
