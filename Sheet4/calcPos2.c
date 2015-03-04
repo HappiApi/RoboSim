@@ -20,16 +20,19 @@ TODO :
 #include <math.h>
 #include "picomms.h"
 
-#define encToMillimetres 1000/956 // mm per ticks 	
+#define encToMillimetres 956/1000 //1000/956 // mm per ticks 	
 #define widthOfRobot 236		// In mm
 
-double angleTurned;			// current turning angle in each call
-double prevAngle = 0;		// initial condition previous angle = 0
-double totalAngle = 0;		// cumulative angle turned
-double deltaX, deltaY;
-double Rl, Rr, Rm;			
-double leftEncInMillimetres, rightEncInMillimetres;
-double p, q, a, b ; 	// Should probably find better name
+double angleTurned ;			// current turning angle in each call
+double prevAngle = 0 ;		// initial condition previous angle = 0
+double totalAngle = 0 ;		// cumulative angle turned
+double deltaX, deltaY ;
+double Rl, Rr, Rm ;			
+double travelledLeftEncInMillimetres, travelledRightEncInMillimetres ;
+double p, q, a, b ; 					// Should probably find better name
+int prevLeftEnc, prevRightEnc = 0 ; 		// First loop previous = 0
+int currentLeftEnc, currentRightEnc ;
+int travelledLeftEnc, travelledRightEnc ;
 
 struct coordinates 
 {
@@ -39,24 +42,24 @@ struct coordinates
 
 struct coordinates coords; 
 
-void convertEncToMM(int leftEnc, int rightEnc)
+void convertEncToMM(int travelledLeftEnc, int travelledRightEnc)
 {
-	leftEncInMillimetres = (double)leftEnc * encToMillimetres ;
-	rightEncInMillimetres = (double)rightEnc * encToMillimetres ;
+	travelledLeftEncInMillimetres = (double)travelledLeftEnc * encToMillimetres ;
+	travelledRightEncInMillimetres = (double)travelledRightEnc * encToMillimetres ;
 }
 
 void calcParameters()
 {
-	angleTurned = ( leftEncInMillimetres - rightEncInMillimetres ) / widthOfRobot ;
-	Rl = leftEncInMillimetres / angleTurned ;
-	Rr = rightEncInMillimetres / angleTurned ;
-	Rm = ( Rl + Rr ) / 2 ;
+	angleTurned = ( travelledLeftEncInMillimetres - travelledRightEncInMillimetres ) / widthOfRobot ;
+	Rl = travelledLeftEncInMillimetres / angleTurned ; //no fabs
+	Rr = travelledRightEncInMillimetres / angleTurned ;
+	Rm = ( Rl + Rr ) / 2.0 ;
 }
 
 void calcStraightDist()	// case where angleTurned == 0
 {
-	coords.x += rightEncInMillimetres * sin(totalAngle) ;	
-	coords.y += rightEncInMillimetres * cos(totalAngle) ;
+	coords.x += travelledRightEncInMillimetres * sin(totalAngle) ;	
+	coords.y += travelledRightEncInMillimetres * cos(totalAngle) ;
 }
 
 //When robot !at 0 rad (given previous angle phi)  // <-- General case ?
@@ -102,11 +105,28 @@ void printAndSetPoint()
 	set_point((int)(coords.x/10), (int)(coords.y/10));
 }
 
+void calcTravelledEnc(int leftEnc, int rightEnc)
+{
+	currentRightEnc = rightEnc ;
+	currentLeftEnc = leftEnc ; 
+	travelledRightEnc = currentRightEnc - prevRightEnc ;
+	travelledLeftEnc = currentLeftEnc - prevLeftEnc ;
+}
+
+void changePrevEnc()
+{
+	prevRightEnc = currentRightEnc ;
+	prevLeftEnc = currentLeftEnc ;
+}
+
+
 void calcPosition(int leftEnc, int rightEnc) 
 {
-	convertEncToMM(leftEnc, rightEnc);
+	
+	calcTravelledEnc(leftEnc, rightEnc) ;
+	convertEncToMM(travelledLeftEnc, travelledRightEnc);
 
-	if (fabs(leftEncInMillimetres - rightEncInMillimetres) < 1.0)
+	if (fabs(travelledLeftEncInMillimetres - travelledRightEncInMillimetres) < 1.0)
 	//if(leftEnc == rightEnc)
 	{
 		calcStraightDist();
@@ -122,9 +142,11 @@ void calcPosition(int leftEnc, int rightEnc)
 		printf("In Turn\n");
 		
 	}
-	
-	printAndSetPoint();
-						
+	changePrevEnc() ;
+	printAndSetPoint() ;
+
+
+
 /*
 When robot at 0 rad [Eg. Starting] use 
 	{

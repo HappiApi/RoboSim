@@ -25,7 +25,6 @@ int main()
 		} 
 		get_motor_encoders(&leftEnc,&rightEnc);
 		calcPosition(leftEnc,rightEnc);
-		reset_motor_encoders();
 	}
 
 	return 1;

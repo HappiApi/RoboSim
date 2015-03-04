@@ -38,18 +38,23 @@ double prevAngle = 0;   // initial condition previous angle = 0
 double xCoord = 0; double yCoord = 0;
 
 /*finds the angle between the heading direction and a point*/
-double angleToTargetPoint(coords * target) {
-  double angleFromY, deltaX, deltaY, angleFromCurrent;// diagDist, aheadDist, acrossDist;
+double angleToTargetPoint(coords * target) 
+{
+  double angleFromY, deltaX, deltaY, angleFromCurrent; // diagDist, aheadDist, acrossDist;
 
   deltaX = target->x - xCurrent;
   deltaY = target->y - yCurrent;
 
   angleFromY = fabs(atan(deltaX / deltaY));
-  if (deltaX > 0) {
+  if (deltaX > 0) 
+  {
     angleFromY = M_PI - angleFromY; 
-  } else {
+  } 
+  else 
+  {
     angleFromY = M_PI + angleFromY;
   } 
+
   angleFromCurrent = angleFromY - prevAngle;
 
   printf("\n\ndelta x : %f, delta y : %f, angleFromY : %f, angleFromCurrent : %f",deltaX, deltaY, angleFromY * 180 / M_PI, angleFromCurrent * 180 / M_PI);
@@ -69,28 +74,36 @@ double calcDistToPoint (coords * temp) {
 }
 
 /*finds the furthest coordinate ahead within a set radius (target) */
-coords * findTarget () 
+coords * findTarget() 
 {
   coords * temp = currentNode;
   double target = 20;
-  int removedBehind = 0;
   double distToNode, closestNodeDist = 30.0;
   
-    while(1) {
+  while(1) 
+  {
       distToNode = calcDistToPoint(temp);
-      if (distToNode < closestNodeDist) {
+      if (distToNode < closestNodeDist) 
+      {
         currentNode = temp;
         closestNodeDist = distToNode;
       }
-      if (temp->position == 1) {  //don't allow it to try searching beyond the end of the list
+
+      if (temp->position == 1) //don't allow it to try searching beyond the end of the list
+      {  
         return temp;
       }
-      if (distToNode < target && calcDistToPoint(temp->next) > target && temp->y < yCurrent) {  //if this is too cpu heavy for the RasPi then change calcDistToPoint(temp->next) to calcDistToPoint(temp->next->next->next) and adjust 3 lines below as noted 
+
+      if (distToNode < target && calcDistToPoint(temp->next) > target && temp->y < yCurrent) //if this is too cpu heavy for the RasPi then change calcDistToPoint(temp->next) to calcDistToPoint(temp->next->next->next) and adjust 3 lines below as noted 
+      {  
         return temp;
-      } else {
+      } 
+
+      else 
+      {
         temp = temp->next;  //change this to temp->next->next->next as well!
       }
-    }
+  }
 }
 
 /*Function that handles the following back of a linked list of coordinates*/

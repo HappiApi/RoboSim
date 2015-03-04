@@ -1,0 +1,6 @@
+Pair 22 Blackwell_Hasthanasombat 
+
+	Me and Daniel both tweaked on various versions of the wall follower which is eventually
+used in the midterm task. There are various sections to the program, I implemented the function
+used to calculate the position of the robot and draw a path while it is driving forward and back. 
+Daniel implementedthe linked list and the function to follow the mapped line back. 
